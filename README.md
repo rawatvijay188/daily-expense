@@ -37,10 +37,21 @@ App code lives in the **src/app** directory and uses
 ## Roadmap
 
 - [x] Project scaffold (Expo + TypeScript + expo-router)
-- [ ] Local SQLite data layer (expenses + categories)
-- [ ] Google Sign-In auth gate with persisted session
-- [ ] Screens: dashboard, add/edit expense, history, settings
-- [ ] EAS build config and first Play Store release
+- [x] Local SQLite data layer (expenses + categories)
+- [x] Google Sign-In auth gate with persisted session
+- [x] Screens: dashboard, add/edit expense, history, settings
+- [x] EAS build profiles (`eas.json`)
+- [ ] Configure Google OAuth client ID (`src/auth/config.ts`)
+- [ ] First Play Store release (create developer account, `eas build`, upload)
+
+## Configuration needed before release
+
+1. **Google Sign-In:** create a Google Cloud / Firebase project, add an OAuth
+   **Web** client ID to `src/auth/config.ts`, and register an **Android** client
+   with the EAS signing SHA-1 (`eas credentials`) for package
+   `com.rawatvijay.dailyexpense`. Until then the app runs in offline/guest mode.
+2. **Play Store:** create a Google Play Developer account ($25), then
+   `eas build -p android --profile production` to produce the signed `.aab`.
 
 ## Learn more
 
