@@ -145,7 +145,6 @@ export default function ExpenseScreen() {
         <DateTimePicker
           value={new Date(dateKey)}
           mode="date"
-          maximumDate={new Date()}
           onChange={(event, selected) => {
             setShowPicker(Platform.OS === 'ios');
             if (event.type === 'set' && selected) setDateKey(toDateKey(selected));
