@@ -1,4 +1,5 @@
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { subDays } from 'date-fns';
 import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
 import { useEffect, useLayoutEffect, useState } from 'react';
 import { Platform, ScrollView, StyleSheet, View } from 'react-native';
@@ -56,6 +57,7 @@ export default function ExpenseScreen() {
 
   const parsedAmount = Number(amount.replace(',', '.'));
   const amountValid = amount.trim() !== '' && !Number.isNaN(parsedAmount) && parsedAmount > 0;
+  const yesterdayKey = toDateKey(subDays(new Date(), 1));
 
   const onSave = async () => {
     setSubmitted(true);
@@ -113,7 +115,25 @@ export default function ExpenseScreen() {
         <Text variant="labelLarge" style={styles.label}>
           Date
         </Text>
-        <Button mode="outlined" icon="calendar" onPress={() => setShowPicker(true)}>
+        <View style={styles.dateChips}>
+          <Chip
+            selected={dateKey === todayKey()}
+            showSelectedOverlay
+            onPress={() => setDateKey(todayKey())}>
+            Today
+          </Chip>
+          <Chip
+            selected={dateKey === yesterdayKey}
+            showSelectedOverlay
+            onPress={() => setDateKey(yesterdayKey)}>
+            Yesterday
+          </Chip>
+        </View>
+        <Button
+          mode="outlined"
+          icon="calendar"
+          onPress={() => setShowPicker(true)}
+          style={styles.dateButton}>
           {formatDateKey(dateKey)}
         </Button>
 
@@ -175,6 +195,8 @@ const styles = StyleSheet.create({
   content: { padding: 16 },
   label: { marginTop: 8, marginBottom: 8 },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  dateChips: { flexDirection: 'row', gap: 8, marginBottom: 8 },
+  dateButton: { alignSelf: 'flex-start' },
   note: { marginTop: 16 },
   save: { marginTop: 24 },
   saveContent: { paddingVertical: 6 },
