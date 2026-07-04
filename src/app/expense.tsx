@@ -1,6 +1,6 @@
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
-import { useEffect, useLayoutEffect, useState } from 'react';
+import { type CSSProperties, useEffect, useLayoutEffect, useState } from 'react';
 import { Platform, ScrollView, StyleSheet, View } from 'react-native';
 import {
   Button,
@@ -56,6 +56,16 @@ export default function ExpenseScreen() {
 
   const parsedAmount = Number(amount.replace(',', '.'));
   const amountValid = amount.trim() !== '' && !Number.isNaN(parsedAmount) && parsedAmount > 0;
+
+  const webDateInputStyle: CSSProperties = {
+    padding: 14,
+    fontSize: 16,
+    borderRadius: 8,
+    border: `1px solid ${theme.colors.outline}`,
+    color: theme.colors.onSurface,
+    backgroundColor: 'transparent',
+    fontFamily: 'inherit',
+  };
 
   const onSave = async () => {
     setSubmitted(true);
@@ -113,9 +123,22 @@ export default function ExpenseScreen() {
         <Text variant="labelLarge" style={styles.label}>
           Date
         </Text>
-        <Button mode="outlined" icon="calendar" onPress={() => setShowPicker(true)}>
-          {formatDateKey(dateKey)}
-        </Button>
+        {Platform.OS === 'web' ? (
+          // The native date picker isn't supported on web, so use the
+          // browser's built-in date input (value format matches our dateKey).
+          <input
+            type="date"
+            value={dateKey}
+            onChange={(e) => {
+              if (e.target.value) setDateKey(e.target.value);
+            }}
+            style={webDateInputStyle}
+          />
+        ) : (
+          <Button mode="outlined" icon="calendar" onPress={() => setShowPicker(true)}>
+            {formatDateKey(dateKey)}
+          </Button>
+        )}
 
         <TextInput
           mode="outlined"
@@ -141,7 +164,7 @@ export default function ExpenseScreen() {
         )}
       </ScrollView>
 
-      {showPicker && (
+      {showPicker && Platform.OS !== 'web' && (
         <DateTimePicker
           value={new Date(dateKey)}
           mode="date"
