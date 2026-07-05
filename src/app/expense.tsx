@@ -1,7 +1,8 @@
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
 import { type CSSProperties, useEffect, useLayoutEffect, useState } from 'react';
-import { Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import {
   Button,
   Chip,
@@ -14,10 +15,17 @@ import {
 } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { DEFAULT_CATEGORIES } from '@/constants/categories';
+import {
+  CATEGORY_COLORS,
+  CATEGORY_ICONS,
+  DEFAULT_CATEGORIES,
+} from '@/constants/categories';
 import { getExpense } from '@/db/expenses';
 import { formatDateKey, todayKey, toDateKey } from '@/lib/dates';
+import { useCategories } from '@/store/categories';
 import { useExpenses } from '@/store/expenses';
+
+type IconName = keyof typeof MaterialCommunityIcons.glyphMap;
 
 export default function ExpenseScreen() {
   const theme = useTheme();
@@ -27,6 +35,8 @@ export default function ExpenseScreen() {
   const isEditing = Boolean(id);
 
   const { create, edit, remove } = useExpenses();
+  const categories = useCategories((s) => s.categories);
+  const createCategory = useCategories((s) => s.create);
 
   const [amount, setAmount] = useState('');
   const [categoryId, setCategoryId] = useState(DEFAULT_CATEGORIES[0].id);
@@ -35,6 +45,12 @@ export default function ExpenseScreen() {
   const [showPicker, setShowPicker] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+
+  // New-category dialog state.
+  const [categoryDialog, setCategoryDialog] = useState(false);
+  const [newCatName, setNewCatName] = useState('');
+  const [newCatIcon, setNewCatIcon] = useState(CATEGORY_ICONS[0]);
+  const [newCatColor, setNewCatColor] = useState(CATEGORY_COLORS[0]);
 
   useLayoutEffect(() => {
     navigation.setOptions({ title: isEditing ? 'Edit expense' : 'Add expense' });
@@ -87,6 +103,17 @@ export default function ExpenseScreen() {
     router.back();
   };
 
+  const onCreateCategory = async () => {
+    const name = newCatName.trim();
+    if (!name) return;
+    const category = await createCategory({ name, icon: newCatIcon, color: newCatColor });
+    setCategoryId(category.id); // auto-select the new category
+    setNewCatName('');
+    setNewCatIcon(CATEGORY_ICONS[0]);
+    setNewCatColor(CATEGORY_COLORS[0]);
+    setCategoryDialog(false);
+  };
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.background }} edges={['bottom']}>
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
@@ -108,7 +135,7 @@ export default function ExpenseScreen() {
           Category
         </Text>
         <View style={styles.chips}>
-          {DEFAULT_CATEGORIES.map((c) => (
+          {categories.map((c) => (
             <Chip
               key={c.id}
               selected={c.id === categoryId}
@@ -118,6 +145,9 @@ export default function ExpenseScreen() {
               {c.name}
             </Chip>
           ))}
+          <Chip icon="plus" mode="outlined" onPress={() => setCategoryDialog(true)}>
+            New
+          </Chip>
         </View>
 
         <Text variant="labelLarge" style={styles.label}>
@@ -188,6 +218,70 @@ export default function ExpenseScreen() {
             </Button>
           </Dialog.Actions>
         </Dialog>
+
+        <Dialog visible={categoryDialog} onDismiss={() => setCategoryDialog(false)}>
+          <Dialog.Title>New category</Dialog.Title>
+          <Dialog.ScrollArea>
+            <ScrollView contentContainerStyle={styles.dialogScroll} keyboardShouldPersistTaps="handled">
+              <TextInput
+                mode="outlined"
+                label="Name"
+                value={newCatName}
+                onChangeText={setNewCatName}
+                autoFocus
+              />
+
+              <Text variant="labelLarge" style={styles.dialogLabel}>
+                Icon
+              </Text>
+              <View style={styles.pickerGrid}>
+                {CATEGORY_ICONS.map((ic) => (
+                  <Pressable
+                    key={ic}
+                    onPress={() => setNewCatIcon(ic)}
+                    style={[
+                      styles.iconOption,
+                      {
+                        backgroundColor: theme.colors.surfaceVariant,
+                        borderColor: newCatIcon === ic ? newCatColor : 'transparent',
+                      },
+                    ]}>
+                    <MaterialCommunityIcons
+                      name={ic as IconName}
+                      size={22}
+                      color={newCatIcon === ic ? newCatColor : theme.colors.onSurface}
+                    />
+                  </Pressable>
+                ))}
+              </View>
+
+              <Text variant="labelLarge" style={styles.dialogLabel}>
+                Color
+              </Text>
+              <View style={styles.pickerGrid}>
+                {CATEGORY_COLORS.map((col) => (
+                  <Pressable
+                    key={col}
+                    onPress={() => setNewCatColor(col)}
+                    style={[
+                      styles.colorOption,
+                      {
+                        backgroundColor: col,
+                        borderColor: newCatColor === col ? theme.colors.onSurface : 'transparent',
+                      },
+                    ]}
+                  />
+                ))}
+              </View>
+            </ScrollView>
+          </Dialog.ScrollArea>
+          <Dialog.Actions>
+            <Button onPress={() => setCategoryDialog(false)}>Cancel</Button>
+            <Button onPress={onCreateCategory} disabled={!newCatName.trim()}>
+              Add
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
       </Portal>
     </SafeAreaView>
   );
@@ -200,4 +294,16 @@ const styles = StyleSheet.create({
   note: { marginTop: 16 },
   save: { marginTop: 24 },
   saveContent: { paddingVertical: 6 },
+  dialogScroll: { paddingBottom: 8 },
+  dialogLabel: { marginTop: 20, marginBottom: 10 },
+  pickerGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+  iconOption: {
+    width: 46,
+    height: 46,
+    borderRadius: 12,
+    borderWidth: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  colorOption: { width: 38, height: 38, borderRadius: 19, borderWidth: 3 },
 });

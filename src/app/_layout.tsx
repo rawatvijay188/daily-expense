@@ -16,6 +16,7 @@ import { PaperProvider } from 'react-native-paper';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { AuthProvider, useAuth } from '@/auth/AuthContext';
+import { useCategories } from '@/store/categories';
 import { useExpenses } from '@/store/expenses';
 import { useSettings } from '@/store/settings';
 import { DarkTheme, LightTheme } from '@/theme/paper';
@@ -33,6 +34,7 @@ function RootNavigator() {
 
   const hydrateSettings = useSettings((s) => s.hydrate);
   const refreshExpenses = useExpenses((s) => s.refresh);
+  const refreshCategories = useCategories((s) => s.refresh);
 
   useEffect(() => {
     if (initializing) return;
@@ -49,8 +51,9 @@ function RootNavigator() {
     if (user) {
       hydrateSettings();
       refreshExpenses();
+      refreshCategories();
     }
-  }, [user, hydrateSettings, refreshExpenses]);
+  }, [user, hydrateSettings, refreshExpenses, refreshCategories]);
 
   return (
     <Stack screenOptions={{ headerShown: false }}>

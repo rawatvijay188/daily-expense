@@ -1,10 +1,10 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { View } from 'react-native';
 
-import { getCategory } from '@/constants/categories';
+import { useCategory } from '@/store/categories';
 
 export function CategoryIcon({ categoryId, size = 40 }: { categoryId: string; size?: number }) {
-  const category = getCategory(categoryId);
+  const category = useCategory(categoryId);
   return (
     <View
       style={{

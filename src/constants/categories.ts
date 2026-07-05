@@ -23,3 +23,43 @@ export const DEFAULT_CATEGORIES: Category[] = [
 export function getCategory(id: string): Category {
   return DEFAULT_CATEGORIES.find((c) => c.id === id) ?? DEFAULT_CATEGORIES[DEFAULT_CATEGORIES.length - 1];
 }
+
+/** Icon choices (MaterialCommunityIcons names) offered when creating a category. */
+export const CATEGORY_ICONS: string[] = [
+  'tag',
+  'silverware-fork-knife',
+  'bus',
+  'cart',
+  'file-document-outline',
+  'shopping',
+  'heart-pulse',
+  'movie-open',
+  'home',
+  'airplane',
+  'gift',
+  'coffee',
+  'cellphone',
+  'school',
+  'dumbbell',
+  'paw',
+  'gas-station',
+  'music',
+  'baby-carriage',
+  'cash',
+];
+
+/** Color swatches offered when creating a category. */
+export const CATEGORY_COLORS: string[] = [
+  '#EF5350',
+  '#42A5F5',
+  '#66BB6A',
+  '#FFA726',
+  '#AB47BC',
+  '#EC407A',
+  '#26C6DA',
+  '#78909C',
+  '#8D6E63',
+  '#5C6BC0',
+  '#26A69A',
+  '#D4AC0D',
+];

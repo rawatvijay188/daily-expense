@@ -2,9 +2,9 @@ import { StyleSheet, View } from 'react-native';
 import { Text, TouchableRipple } from 'react-native-paper';
 
 import { CategoryIcon } from '@/components/CategoryIcon';
-import { getCategory } from '@/constants/categories';
 import { Expense } from '@/db/expenses';
 import { formatMoney } from '@/lib/format';
+import { useCategory } from '@/store/categories';
 
 type Props = {
   expense: Expense;
@@ -13,7 +13,7 @@ type Props = {
 };
 
 export function ExpenseRow({ expense, currency, onPress }: Props) {
-  const category = getCategory(expense.category_id);
+  const category = useCategory(expense.category_id);
   return (
     <TouchableRipple onPress={onPress}>
       <View style={styles.row}>
