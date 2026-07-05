@@ -16,7 +16,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import {
-  CATEGORY_COLORS,
+  CATEGORY_COLOR,
   CATEGORY_ICONS,
   DEFAULT_CATEGORIES,
 } from '@/constants/categories';
@@ -50,7 +50,6 @@ export default function ExpenseScreen() {
   const [categoryDialog, setCategoryDialog] = useState(false);
   const [newCatName, setNewCatName] = useState('');
   const [newCatIcon, setNewCatIcon] = useState(CATEGORY_ICONS[0]);
-  const [newCatColor, setNewCatColor] = useState(CATEGORY_COLORS[0]);
 
   useLayoutEffect(() => {
     navigation.setOptions({ title: isEditing ? 'Edit expense' : 'Add expense' });
@@ -106,11 +105,10 @@ export default function ExpenseScreen() {
   const onCreateCategory = async () => {
     const name = newCatName.trim();
     if (!name) return;
-    const category = await createCategory({ name, icon: newCatIcon, color: newCatColor });
+    const category = await createCategory({ name, icon: newCatIcon, color: CATEGORY_COLOR });
     setCategoryId(category.id); // auto-select the new category
     setNewCatName('');
     setNewCatIcon(CATEGORY_ICONS[0]);
-    setNewCatColor(CATEGORY_COLORS[0]);
     setCategoryDialog(false);
   };
 
@@ -243,34 +241,15 @@ export default function ExpenseScreen() {
                       styles.iconOption,
                       {
                         backgroundColor: theme.colors.surfaceVariant,
-                        borderColor: newCatIcon === ic ? newCatColor : 'transparent',
+                        borderColor: newCatIcon === ic ? theme.colors.primary : 'transparent',
                       },
                     ]}>
                     <MaterialCommunityIcons
                       name={ic as IconName}
                       size={22}
-                      color={newCatIcon === ic ? newCatColor : theme.colors.onSurface}
+                      color={newCatIcon === ic ? theme.colors.primary : theme.colors.onSurface}
                     />
                   </Pressable>
-                ))}
-              </View>
-
-              <Text variant="labelLarge" style={styles.dialogLabel}>
-                Color
-              </Text>
-              <View style={styles.pickerGrid}>
-                {CATEGORY_COLORS.map((col) => (
-                  <Pressable
-                    key={col}
-                    onPress={() => setNewCatColor(col)}
-                    style={[
-                      styles.colorOption,
-                      {
-                        backgroundColor: col,
-                        borderColor: newCatColor === col ? theme.colors.onSurface : 'transparent',
-                      },
-                    ]}
-                  />
                 ))}
               </View>
             </ScrollView>
@@ -305,5 +284,4 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  colorOption: { width: 38, height: 38, borderRadius: 19, borderWidth: 3 },
 });

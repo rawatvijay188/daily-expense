@@ -48,18 +48,5 @@ export const CATEGORY_ICONS: string[] = [
   'cash',
 ];
 
-/** Color swatches offered when creating a category. */
-export const CATEGORY_COLORS: string[] = [
-  '#EF5350',
-  '#42A5F5',
-  '#66BB6A',
-  '#FFA726',
-  '#AB47BC',
-  '#EC407A',
-  '#26C6DA',
-  '#78909C',
-  '#8D6E63',
-  '#5C6BC0',
-  '#26A69A',
-  '#D4AC0D',
-];
+/** Single color used for user-created categories. */
+export const CATEGORY_COLOR = '#2E7D5B';
