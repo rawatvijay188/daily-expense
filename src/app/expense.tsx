@@ -21,7 +21,7 @@ import {
   DEFAULT_CATEGORIES,
 } from '@/constants/categories';
 import { getExpense } from '@/db/expenses';
-import { formatDateKey, todayKey, toDateKey } from '@/lib/dates';
+import { formatDateKey, toDateKey, todayKey } from '@/lib/dates';
 import { useCategories } from '@/store/categories';
 import { useExpenses } from '@/store/expenses';
 
@@ -133,16 +133,28 @@ export default function ExpenseScreen() {
           Category
         </Text>
         <View style={styles.chips}>
-          {categories.map((c) => (
-            <Chip
-              key={c.id}
-              selected={c.id === categoryId}
-              showSelectedOverlay
-              onPress={() => setCategoryId(c.id)}
-              icon={c.icon}>
-              {c.name}
-            </Chip>
-          ))}
+          {categories.map((c) => {
+            const isSelected = c.id === categoryId;
+            return (
+              <Chip
+                key={c.id}
+                selected={isSelected}
+                showSelectedOverlay
+                onPress={() => setCategoryId(c.id)}
+                icon={c.icon}
+                selectedColor={isSelected ? theme.colors.onPrimaryContainer : undefined}
+                style={
+                  isSelected
+                    ? {
+                        borderWidth: 1.5,
+                        borderColor: theme.colors.primary,
+                      }
+                    : undefined
+                }>
+                {c.name}
+              </Chip>
+            );
+          })}
           <Chip icon="plus" mode="outlined" onPress={() => setCategoryDialog(true)}>
             New
           </Chip>
