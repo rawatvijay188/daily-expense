@@ -1,5 +1,12 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { Stack, useRouter, useSegments } from 'expo-router';
+import {
+  DarkTheme as NavDarkTheme,
+  DefaultTheme as NavLightTheme,
+  Stack,
+  ThemeProvider,
+  useRouter,
+  useSegments,
+} from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
@@ -59,7 +66,24 @@ function RootNavigator() {
 
 export default function RootLayout() {
   const scheme = useColorScheme();
-  const theme = scheme === 'dark' ? DarkTheme : LightTheme;
+  const isDark = scheme === 'dark';
+  const theme = isDark ? DarkTheme : LightTheme;
+
+  // Keep React Navigation's colors in sync with the Paper theme so the screen
+  // background and text follow light/dark mode (otherwise dark-mode text lands
+  // on a light navigation background and looks faded).
+  const navBase = isDark ? NavDarkTheme : NavLightTheme;
+  const navTheme = {
+    ...navBase,
+    colors: {
+      ...navBase.colors,
+      background: theme.colors.background,
+      card: theme.colors.elevation.level2,
+      text: theme.colors.onSurface,
+      border: theme.colors.outlineVariant,
+      primary: theme.colors.primary,
+    },
+  };
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -69,10 +93,12 @@ export default function RootLayout() {
           settings={{
             icon: (props) => <MaterialCommunityIcons {...props} />,
           }}>
-          <AuthProvider>
-            <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
-            <RootNavigator />
-          </AuthProvider>
+          <ThemeProvider value={navTheme}>
+            <AuthProvider>
+              <StatusBar style={isDark ? 'light' : 'dark'} />
+              <RootNavigator />
+            </AuthProvider>
+          </ThemeProvider>
         </PaperProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
